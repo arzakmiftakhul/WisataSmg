@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.miftakhularzak.wisatasemarang.fragment.MapFragment;
 import com.miftakhularzak.wisatasemarang.R;
 import com.miftakhularzak.wisatasemarang.fragment.FavoriteFragment;
 import com.miftakhularzak.wisatasemarang.fragment.HomeFragment;
@@ -98,6 +99,10 @@ public class MainActivity extends AppCompatActivity
                     .commit();
 
         } else if (id == R.id.nav_peta) {
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction()
+                    .replace(R.id.layout_fragment,new MapFragment())
+                    .commit();
 
         } else if (id == R.id.nav_wisata) {
             FragmentManager manager = getSupportFragmentManager();
