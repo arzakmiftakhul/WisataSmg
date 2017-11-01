@@ -50,6 +50,7 @@ public class HomeFragment extends Fragment {
         recyclerView=(RecyclerView)view.findViewById(R.id.recycler_view);
         //Data
         String c = new String();
+        int a = 0;
         listData = new ArrayList<>();
 //        for (int i=0;i<=10;i++) {
 //            WisataModel wisata1 = new WisataModel("Lawang Sewu", "Tugu muda", "https://2.bp.blogspot.com/-qgUpw0NXmec/VwONr4evrZI/AAAAAAAAARM/zd7rRrNsuTEWJFKBFmD7DUz9TmKSCQG-Q/s1600/Lawang%2BSewu%2BSetelah%2Bdi%2BPugar.jpg");
