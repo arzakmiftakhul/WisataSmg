@@ -58,9 +58,9 @@ public class DataRouteParser {
                         }
                     }
                     routes.add(path);
+                    //
                 }
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (Exception e) {
