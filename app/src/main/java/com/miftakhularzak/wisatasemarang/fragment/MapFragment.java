@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +23,19 @@ import com.miftakhularzak.wisatasemarang.Response.ListWisataModel;
 import com.miftakhularzak.wisatasemarang.Response.WisataItem;
 import com.miftakhularzak.wisatasemarang.drawroutemap.DrawMarker;
 import com.miftakhularzak.wisatasemarang.drawroutemap.DrawRouteMaps;
+import com.miftakhularzak.wisatasemarang.drawroutemap.FetchUrl;
 import com.miftakhularzak.wisatasemarang.networking.ApiServices;
 import com.miftakhularzak.wisatasemarang.networking.RetrofitConfig;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -77,6 +86,47 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         getActivity().getWindowManager().getDefaultDisplay().getSize(displaySize);
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, displaySize.x, 250, 30));
         
+    }
+
+    private void getLocation(LatLng origin, LatLng destination){
+        OkHttpClient client = new OkHttpClient();
+
+        String url_route = FetchUrl.getUrl(origin, destination);
+
+        Request request = new Request.Builder()
+                .url(url_route)
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                Log.d("route",response.body().toString());
+
+                try{
+                    JSONObject json = new JSONObject(response.body().string());
+                    JSONArray routes = json.getJSONArray("routes");
+
+                    JSONObject distance = routes.getJSONObject(0)
+                                                .getJSONArray("legs")
+                                                .getJSONObject(0)
+                                                .getJSONObject("distance");
+
+                    JSONObject duration = routes.getJSONObject(0)
+                            .getJSONArray("legs")
+                            .getJSONObject(0)
+                            .getJSONObject("duration");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } ;
+            }
+        });
+
     }
 
     private void ambilData() {
