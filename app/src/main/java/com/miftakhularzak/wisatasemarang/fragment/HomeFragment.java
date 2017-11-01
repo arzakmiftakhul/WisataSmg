@@ -49,7 +49,6 @@ public class HomeFragment extends Fragment {
         //hubungin
         recyclerView=(RecyclerView)view.findViewById(R.id.recycler_view);
         //Data
-        String c = new String();
         int a = 0;
         listData = new ArrayList<>();
 //        for (int i=0;i<=10;i++) {
