@@ -2,7 +2,6 @@ package com.miftakhularzak.wisatasemarang.fragment;
 
 
 import android.app.ProgressDialog;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -21,7 +20,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.miftakhularzak.wisatasemarang.R;
 import com.miftakhularzak.wisatasemarang.Response.ListWisataModel;
 import com.miftakhularzak.wisatasemarang.Response.WisataItem;
-import com.miftakhularzak.wisatasemarang.drawroutemap.DrawMarker;
 import com.miftakhularzak.wisatasemarang.drawroutemap.DrawRouteMaps;
 import com.miftakhularzak.wisatasemarang.drawroutemap.FetchUrl;
 import com.miftakhularzak.wisatasemarang.networking.ApiServices;
@@ -46,6 +44,8 @@ import retrofit2.Response;
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback{
     GoogleMap mMap;
+    private String jarak;
+    private String waktu;
     List <WisataItem>listData;
     public MapFragment() {
         // Required empty public constructor
@@ -65,30 +65,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
 
-//        // Add a marker in Sydney and move the camera
-//        LatLng sydney = new LatLng(-34, 151);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-      //  ambilData();
         LatLng origin = new LatLng(-7.788969, 110.338382);
         LatLng destination = new LatLng(-7.781200, 110.349709);
         DrawRouteMaps.getInstance(getContext())
                 .draw(origin, destination, mMap);
-        DrawMarker.getInstance(getContext()).draw(mMap, origin, R.drawable.ic_action_name, "Origin Location");
-        DrawMarker.getInstance(getContext()).draw(mMap, destination, R.drawable.ic_action_name, "Destination Location");
 
         LatLngBounds bounds = new LatLngBounds.Builder()
                 .include(origin)
                 .include(destination).build();
-        Point displaySize = new Point();
-        getActivity().getWindowManager().getDefaultDisplay().getSize(displaySize);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, displaySize.x, 250, 30));
-        
-    }
 
-    private void getLocation(LatLng origin, LatLng destination){
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin,15));
+        getLocation(origin, destination, mMap);
+
+    }
+    private void getLocation(final LatLng origin, final LatLng destination, final GoogleMap map){
         OkHttpClient client = new OkHttpClient();
 
         String url_route = FetchUrl.getUrl(origin, destination);
@@ -107,23 +101,54 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
                 Log.d("route",response.body().toString());
 
-                try{
+                try {
+
                     JSONObject json = new JSONObject(response.body().string());
                     JSONArray routes = json.getJSONArray("routes");
 
                     JSONObject distance = routes.getJSONObject(0)
-                                                .getJSONArray("legs")
-                                                .getJSONObject(0)
-                                                .getJSONObject("distance");
+                            .getJSONArray("legs")
+                            .getJSONObject(0)
+                            .getJSONObject("distance");
 
                     JSONObject duration = routes.getJSONObject(0)
                             .getJSONArray("legs")
                             .getJSONObject(0)
                             .getJSONObject("duration");
 
+                    jarak = distance.getString("text");
+                    waktu = duration.getString("text");
+
+                    Log.d("distance", distance.toString());
+                    Log.d("duration", duration.toString());
+
+
+
+
                 } catch (JSONException e) {
-                    e.printStackTrace();
-                } ;
+
+                }
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Toast.makeText(getContext(),"Hey",Toast.LENGTH_SHORT).show();
+                        map.addMarker(new MarkerOptions()
+                                .title("Origin")
+                                .position(origin)
+                                .snippet(jarak + " " + waktu));
+                        map.addMarker(new MarkerOptions()
+                                .title("destination")
+                                .position(destination)
+                                .snippet(jarak + " " + waktu));
+
+                    }
+                });
+
+
+
+
             }
         });
 
